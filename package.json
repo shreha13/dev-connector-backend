@@ -1,0 +1,26 @@
+{
+  "name": "dev-connector-backend",
+  "version": "1.0.0",
+  "description": "It is a Dev Connector Application, created using NodeJS, Express and MongoDB",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shreha13/dev-connector-backend.git"
+  },
+  "author": "Shreha Didwania",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shreha13/dev-connector-backend/issues"
+  },
+  "homepage": "https://github.com/shreha13/dev-connector-backend#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.14.1",
+    "nodemon": "^3.1.10"
+  }
+}
