@@ -5,80 +5,17 @@ const bcrypt = require('bcrypt');
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
 const { userAuth } = require('./middlewares/auth');
+const profileRouter = require('./routes/profile');
+const requestRouter = require('./routes/request');
+const userRouter = require('./routes/user');
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/users', (req, res, next) => {
-    User.find().then((users) => {
-        res.send(users);
-    });
-});
-app.patch('/users/:userId', (req, res, next) => {
-    try {
-        const id = req.params.userId;
-        const body = req.body;
-        if (body.email) {
-            throw new TypeError('email change is not allowed');
-        }
-        User.findByIdAndUpdate(id, req.body, { runValidators: true })
-            .then((users) => {
-                res.send(users);
-            })
-            .catch((err) => res.send('error: ' + err));
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-app.post('/login', async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) throw new Error('Incorrect email or password');
-        user.validatePassword(password);
-        // CREATE JWT TOKEN
-        const token = await user.getJWT();
-
-        // ADD TOKEN TO COOKIE AND SEND BACK
-        res.cookie('token', token, {
-            expires: new Date(Date.now() + 1000 * 60 * 1), // after + the number is in ms ie, 10 mins = 10*60*1000
-        });
-        res.send('Loggedin successfully');
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-app.get('/profile', userAuth, async (req, res, next) => {
-    try {
-        const user = req.user;
-        res.send(user);
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
-app.post('/signup', async (req, res, next) => {
-    try {
-        const { firstName, lastName, email, password } = req.body;
-        if (!validator.isStrongPassword(password)) {
-            throw new Error('Enter a Strong Password');
-        }
-        const passwordHash = await bcrypt.hash(password, 10);
-        const user = new User({
-            firstName,
-            lastName,
-            email,
-            password: passwordHash,
-        });
-        await user.save();
-        res.send('Saved successfully!');
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
+app.use('/profile', profileRouter);
+app.use('/requests', requestRouter);
+app.use('/', userRouter);
 
 connectDB()
     .then(() => {

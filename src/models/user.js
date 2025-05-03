@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
+const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
     {
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
             validate(val) {
-                if (!validator.isEmail(val)) throw new Error('invalid email');
+                if (!validator.isEmail(val)) throw new Error("invalid email");
             },
 
             //validate: [{
@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema(
             required: true,
             validate(value) {
                 if (!validator.isStrongPassword(value)) {
-                    throw new Error('Enter a Strong Password: ' + value);
+                    throw new Error("Enter a Strong Password: " + value);
                 }
             },
         },
@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
         gender: {
             type: String,
             enum: {
-                values: ['Female', 'Male', 'Others'],
+                values: ["Female", "Male", "Others"],
             },
         },
         skills: {
@@ -75,22 +75,26 @@ const userSchema = new mongoose.Schema(
                     validator: function (val) {
                         return val.length <= 5;
                     },
-                    message: 'Max skills limit is 5',
+                    message: "Max skills limit is 5",
                 },
             ],
         },
-        photo: {
+        photoUrl: {
             type: String,
-            default:
-                'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png',
+            default: "https://geographyandyou.com/images/user-profile.png",
+            validate(value) {
+                if (!validator.isURL(value)) {
+                    throw new Error("Invalid Photo URL: " + value);
+                }
+            },
         },
     },
     { timestamps: true }
 );
 
 userSchema.methods.getJWT = async function () {
-    const token = await jwt.sign({ _id: this._id }, 'newsupersecret', {
-        expiresIn: '10m',
+    const token = await jwt.sign({ _id: this._id }, "newsupersecret", {
+        expiresIn: "1d",
     });
 
     return token;
@@ -99,10 +103,10 @@ userSchema.methods.getJWT = async function () {
 userSchema.methods.validatePassword = async function (password) {
     const isValid = await bcrypt.compare(password, this.password);
     if (!isValid) {
-        throw new Error('Incorrect email or password');
+        throw new Error("Incorrect email or password");
     }
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
