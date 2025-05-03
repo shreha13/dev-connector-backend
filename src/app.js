@@ -4,7 +4,6 @@ const User = require('./models/user');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken');
 const { userAuth } = require('./middlewares/auth');
 
 const app = express();
@@ -37,17 +36,15 @@ app.post('/login', async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        const isValid = await bcrypt.compare(password, user?.password ?? '');
-        if (!isValid) {
-            throw new Error('Incorrect email or password');
-        }
+        if (!user) throw new Error('Incorrect email or password');
+        user.validatePassword(password);
         // CREATE JWT TOKEN
-        const token = await jwt.sign({ _id: user._id }, 'newsupersecret', {
-            expiresIn: '10m',
-        });
+        const token = await user.getJWT();
 
         // ADD TOKEN TO COOKIE AND SEND BACK
-        res.cookie('token', token);
+        res.cookie('token', token, {
+            expires: new Date(Date.now() + 1000 * 60 * 1), // after + the number is in ms ie, 10 mins = 10*60*1000
+        });
         res.send('Loggedin successfully');
     } catch (err) {
         res.status(500).send(err.message);
