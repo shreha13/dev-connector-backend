@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -16,14 +17,22 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        validate: [{
-            validator: function(v) {
-                const regex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+        validate(val) {
+            if(!validator.isEmail(val))
+                throw new Error("invalid email")
+        },
 
-                return regex.test(v);
-            },
-            message: "Not a correct email format"
-        }
+
+        //validate: [{
+        //     validator: function(v) {
+        //         const regex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+
+        //         return regex.test(v);
+        //     },
+        //     message: "Not a correct email format"
+        // }
+
+         
         // this is equal to unique
         // {
         //     validator: async function (value) {
@@ -35,8 +44,7 @@ const userSchema = new mongoose.Schema({
         //       return true;
         //     },
         //     message: 'Email already exists'
-        //   }
-        ], 
+        //   }], 
         lowercase: true, 
         trim: true,
         required: true,
@@ -44,7 +52,12 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        validate(value) {
+            if (!validator.isStrongPassword(value)) {
+                throw new Error("Enter a Strong Password: " + value);
+            }
+        },
     },
     age: {
         type: Number
@@ -56,7 +69,13 @@ const userSchema = new mongoose.Schema({
         }
     },
     skills: {
-        type: [String]
+        type: [String],
+        validate: [{
+            validator: function(val) {
+                return val.length<=5;
+            },
+            message: "Max skills limit is 5"
+        }]
     }
 }, { timestamps: true });
 
