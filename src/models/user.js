@@ -88,6 +88,10 @@ const userSchema = new mongoose.Schema(
                 }
             },
         },
+        about: {
+            type: String,
+            maxLength: 500,
+        },
     },
     { timestamps: true }
 );

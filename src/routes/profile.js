@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 const profileRouter = express.Router();
 
-profileRouter.get("/", userAuth, async (req, res, next) => {
+profileRouter.get("/", async (req, res, next) => {
     try {
         const user = req.user;
         res.send(user);
@@ -13,15 +13,18 @@ profileRouter.get("/", userAuth, async (req, res, next) => {
     }
 });
 
-profileRouter.patch("/", userAuth, async (req, res, next) => {
+profileRouter.patch("/", async (req, res, next) => {
     try {
-        console.log(req.user);
         const id = req.user._id;
         const body = req.body;
-        console.log("body " + req.body);
-        if (body.email) {
-            throw new TypeError("Email change is not allowed");
+        const NOT_ALLOWED_FIELDS = ["email", "password"];
+        const isEditNotAllowed = Object.keys(body).some((field) =>
+            NOT_ALLOWED_FIELDS.includes(field)
+        );
+        if (isEditNotAllowed) {
+            throw new Error("Something went wrong!!!!");
         }
+
         await User.findByIdAndUpdate(id, req.body, { runValidators: true });
         res.send("User updated successfully");
     } catch (err) {

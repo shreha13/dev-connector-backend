@@ -45,6 +45,15 @@ userRouter.post("/login", async (req, res, next) => {
     }
 });
 
+userRouter.post("/logout", (req, res) => {
+    try {
+        res.clearCookie("token");
+        res.send("Logged out suceessfully");
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 userRouter.get("/feed", userAuth, async (req, res, next) => {
     try {
         const userId = req.user._id;
