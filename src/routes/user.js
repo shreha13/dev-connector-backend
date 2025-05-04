@@ -20,9 +20,9 @@ userRouter.post("/signup", async (req, res, next) => {
             password: passwordHash,
         });
         await user.save();
-        res.send("Saved successfully!");
+        res.json({ message: "Saved successfully!" });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -39,18 +39,18 @@ userRouter.post("/login", async (req, res, next) => {
         res.cookie("token", token, {
             expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // after + the number is in ms ie, 10 mins = 10*60*1000
         });
-        res.send("Loggedin successfully");
+        res.json({ message: "Loggedin successfully" });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
 userRouter.post("/logout", (req, res) => {
     try {
         res.clearCookie("token");
-        res.send("Logged out suceessfully");
+        res.json({ message: "Logged out suceessfully" });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -58,9 +58,9 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
     try {
         const userId = req.user._id;
         const users = await User.find({ _id: { $ne: userId } });
-        res.send(users);
+        res.json({ data: users });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 

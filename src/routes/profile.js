@@ -9,9 +9,9 @@ const profileRouter = express.Router();
 profileRouter.get("/", userAuth, async (req, res, next) => {
     try {
         const user = req.user;
-        res.send(user);
+        res.json({ data: user });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -28,9 +28,9 @@ profileRouter.patch("/", userAuth, async (req, res, next) => {
         }
 
         await User.findByIdAndUpdate(id, req.body, { runValidators: true });
-        res.send("User updated successfully");
+        res.json({ message: "User updated successfully" });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -55,9 +55,9 @@ profileRouter.post("/change-password", async (req, res, next) => {
         );
         if (!user) throw new Error("Something went wrong!!!!");
         res.clearCookie("token");
-        res.send("password reset, please login");
+        res.json({ message: "password reset, please login" });
     } catch (err) {
-        res.status(500).send(err.message);
+        res.status(500).json({ error: err.message });
     }
 });
 
