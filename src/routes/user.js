@@ -31,7 +31,7 @@ userRouter.post("/login", async (req, res, next) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) throw new Error("Incorrect email or password");
-        user.validatePassword(password);
+        await user.validatePassword(password);
         // CREATE JWT TOKEN
         const token = await user.getJWT();
 

@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/profile", userAuth, profileRouter);
+app.use("/profile", profileRouter);
 app.use("/requests", userAuth, requestRouter);
 app.use("/", userRouter);
 
