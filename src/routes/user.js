@@ -3,6 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const { userAuth } = require("../middlewares/auth");
+const ConnectionRequest = require("../models/connectionRequest");
 
 const userRouter = express.Router();
 
@@ -61,6 +62,22 @@ userRouter.get("/feed", userAuth, async (req, res, next) => {
         res.json({ data: users });
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+userRouter.get("/connections", userAuth, async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        const connections = await ConnectionRequest.find({
+            $or: [{ sender: loggedInUser._id }, { receiver: loggedInUser }],
+            status: "accepted",
+        })
+            .populate("sender", ["firstName", "lastName"])
+            .populate("receiver", ["firstName", "lastName"]);
+
+        res.json({ data: connections });
+    } catch (err) {
+        res.json({ error: err.message });
     }
 });
 
